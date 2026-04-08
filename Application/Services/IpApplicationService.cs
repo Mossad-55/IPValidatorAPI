@@ -24,31 +24,31 @@ public class IpApplicationService
             throw new ConflictException("Invalid IP Address.");
 
         var result = await _ipService.GetCountryByIpAsync(ip)!;
-        if (string.IsNullOrEmpty(result.CountryCode) 
-            && string.IsNullOrEmpty(result.CountryName))
+        if (string.IsNullOrEmpty(result.Value.CountryName) 
+            && string.IsNullOrEmpty(result.Value.CountryCode))
             throw new Exception("External API failed.");
 
         return new IpLookupResponseDto
         {
             IpAddress = ip,
-            CountryCode = result.CountryCode,
-            CountryName = result.CountryName
+            CountryCode = result.Value.CountryCode,
+            CountryName = result.Value.CountryName
         };
     }
 
     public async Task<bool> CheckIfBlockedAsync(string ip, string userAger)
     {
         var result = await _ipService.GetCountryByIpAsync(ip)!;
-        if (string.IsNullOrEmpty(result.CountryName)
-            && string.IsNullOrEmpty(result.CountryCode))
+        if (string.IsNullOrEmpty(result.Value.CountryName)
+            && string.IsNullOrEmpty(result.Value.CountryCode))
             throw new Exception("IP lookup failed.");
 
-        var isBlocked = await _repo.BlockedCountry.ExistsAsync(result.CountryCode);
+        var isBlocked = await _repo.BlockedCountry.ExistsAsync(result.Value.CountryName);
 
         await _repo.Log.AddAsync(new LogEntry
         {
             IpAddess = ip,
-            CountryCode = result.CountryCode,
+            CountryCode = result.Value.CountryCode,
             Timestamp = DateTime.UtcNow,
             IsBlocked = isBlocked,
             UserAgent = userAger

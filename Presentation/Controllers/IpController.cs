@@ -25,9 +25,9 @@ public class IpController : ControllerBase
     }
 
     [HttpGet("check-block")]
-    public async Task<IActionResult> CheckBlock()
+    public async Task<IActionResult> CheckBlock([FromQuery] string? ipAddress)
     {
-        var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var ip = ipAddress ?? HttpContext.Connection.RemoteIpAddress?.ToString();
         var userAgent = Request.Headers["User-Agent"].ToString();
 
         var isBlocked = await _service.CheckIfBlockedAsync(ip!, userAgent);
