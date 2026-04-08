@@ -1,23 +1,44 @@
+﻿using Application.Interfaces;
+using Infrastructure.ExternalServices;
+using Infrastructure.HostedServices;
+using IPValidator_API.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.ConfigureRepositoryManager();
+builder.Services.ConfigureServiceManager();
+builder.Services.ConfigureRateLimiting();
 
-builder.Services.AddControllers()
-    .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddHttpClient<IIpService, IpApiService>();
+builder.Services.AddHostedService<TemporalCleanupService>();
+
+builder.Services.AddControllers(opts =>
+{
+    opts.Filters.Add<Presentation.ActionFilters.ApiExceptionFitler>();
+})
+.AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.ConfigureSwagger();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    // Enable Swagger UI
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "IP Validator API v1");
+        options.RoutePrefix = string.Empty; // Opens Swagger at root URL
+    });
 }
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers();
 

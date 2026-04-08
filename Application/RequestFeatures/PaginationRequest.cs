@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.RequestFeatures;
+namespace Application.RequestFeatures;
 
 public record PaginationRequest
 {
