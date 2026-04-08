@@ -1,9 +1,10 @@
 ﻿using Application.DTOs;
+using Application.RequestFeatures;
 
 namespace Application.Interfaces;
 
 public interface ILogService
 {
     Task LogAttemptyAsync(LogEntryDto dto);
-    Task<IEnumerable<LogEntryDto>> GetAllLogsAsync();
+    Task<PagedResultDto<LogEntryDto>> GetAllLogsAsync(PaginationRequest request);
 }

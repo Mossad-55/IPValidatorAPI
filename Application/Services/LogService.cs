@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Application.RequestFeatures;
 using Domain.Entities;
 using Domain.Interfaces;
 
@@ -14,18 +15,32 @@ internal sealed class LogService : ILogService
         _repsitory = repository;
     }
 
-    public async Task<IEnumerable<LogEntryDto>> GetAllLogsAsync()
+    public async Task<PagedResultDto<LogEntryDto>> GetAllLogsAsync(PaginationRequest request)
     {
         var logs =  await _repsitory.Log.GetAllAsync();
 
-        return logs.Select(log => new LogEntryDto
+        // Sort 
+        var sortedLogs = logs.OrderByDescending(x => x.Timestamp);
+
+        // Pagination
+        var pagedLogs = sortedLogs.Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(x => new LogEntryDto
+            {
+                IpAddess = x.IpAddess,
+                CountryCode = x.CountryCode,
+                Timestamp = x.Timestamp,
+                IsBlocked = x.IsBlocked,
+                UserAgent = x.UserAgent
+            });
+
+        return new PagedResultDto<LogEntryDto>
         {
-            IpAddess = log.IpAddess,
-            CountryCode = log.CountryCode,
-            Timestamp = log.Timestamp,
-            IsBlocked = log.IsBlocked,
-            UserAgent = log.UserAgent
-        });
+            Items = pagedLogs,
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalCount = logs.Count()
+        };
     }
 
     public async Task LogAttemptyAsync(LogEntryDto dto)
