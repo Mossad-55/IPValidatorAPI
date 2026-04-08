@@ -31,4 +31,20 @@ public class CountriesController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpDelete("block/{countryCode}")]
+    public async Task<IActionResult> DeleteBlockedCountry(string countryCode)
+    {
+        await _service.CountryService.RemoveBlockedCountryAsync(countryCode);
+
+        return NoContent();
+    }
+
+    [HttpPost("temporal-block")]
+    public async Task<IActionResult> TemporalBlock([FromBody] TemporalBlockDto dto)
+    {
+        await _service.CountryService.AddTemporalBlockAsync(dto);
+
+        return Ok(new { message = $"Country with code: {dto.CountryCode} has been temporarly blocked for {dto.DurationInMinutes} minute/s." });
+    }
 }
