@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Services;
 using Infrastructure.ExternalServices;
 using Infrastructure.HostedServices;
 using IPValidator_API.Extensions;
@@ -12,6 +13,7 @@ builder.Services.ConfigureRateLimiting();
 
 builder.Services.AddHttpClient<IIpService, IpApiService>();
 builder.Services.AddHostedService<TemporalCleanupService>();
+builder.Services.AddScoped<IpApplicationService>();
 
 builder.Services.AddControllers(opts =>
 {

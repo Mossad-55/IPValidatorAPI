@@ -12,7 +12,7 @@ public sealed class IpApiService : IIpService
         _httpClient = client;
     }
 
-    public async Task<(string CountryCode, string CountryName)> GetCountryByIpAsync(string ip)
+    public async Task<(string CountryCode, string CountryName)>? GetCountryByIpAsync(string ip)
     {
         var retryPolicy = Policy.Handle<Exception>().WaitAndRetryAsync(3, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)));
         var rateLimitPolicy = Policy.RateLimitAsync(30, TimeSpan.FromMinutes(1));

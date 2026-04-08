@@ -2,5 +2,5 @@
 
 public interface IIpService
 {
-    Task<(string CountryCode, string CountryName)> GetCountryByIpAsync(string ip);
+    Task<(string CountryCode, string CountryName)>? GetCountryByIpAsync(string ip);
 }
